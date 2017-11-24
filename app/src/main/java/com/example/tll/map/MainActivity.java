@@ -1,12 +1,18 @@
 package com.example.tll.map;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,9 +24,11 @@ import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.InfoWindow;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
@@ -52,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
         mLocationClient.registerLocationListener(new MyLocationListener());
         SDKInitializer.initialize(getApplicationContext());
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         mapView = (MapView) findViewById(R.id.bmapView);
         baiduMap = mapView.getMap();
         baiduMap.setMyLocationEnabled(true);
@@ -73,6 +84,27 @@ public class MainActivity extends AppCompatActivity {
             requestLocation();
         }
     }
+
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.toolbar,menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+            case R.id.settings:
+                Toast.makeText(this, "setting", Toast.LENGTH_LONG).show();
+                Intent intent1 = new Intent(MainActivity.this,ThirdActivity.class);
+                startActivity(intent1);
+                break;
+            case R.id.more:
+                Toast.makeText(this, "......", Toast.LENGTH_LONG).show();
+                break;
+            default:
+        }
+        return true;
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -96,16 +128,75 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setMarker(double lat,double lon) {
+    private void setMarker(double lat,double lon,final String rasploc) {
         //定义Maker坐标点
-        LatLng point = new LatLng(lat,lon);
+        LatLng point = new LatLng(lat, lon);
+
+        //LatLng latLng = null;  
+        //OverlayOptions overlayOptions = null;  
+        Marker marker = null;
+
         //构建Marker图标
-        BitmapDescriptor bitmap = BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher_round);
+        final BitmapDescriptor bitmap = BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher_round);
         //构建MarkerOption，用于在地图上添加Marker
         OverlayOptions option = new MarkerOptions().position(point).icon(bitmap);
         //在地图上添加Marker，并显示
-        baiduMap.addOverlay(option);
+        marker = (Marker) (baiduMap.addOverlay(option));
+
+
+        baiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(final Marker marker) {
+                //获得marker中的数据
+                //Info info = (Info) marker.getExtraInfo().get("info");
+
+                InfoWindow mInfoWindow;
+
+                //生成一个TextView用户在地图中显示InfoWindow
+                //TextView location = new TextView(getApplicationContext());
+                //location.setBackgroundResource(R.drawable.);
+                //location.setPadding(30, 20, 30, 50);
+                //location.setText(" Raspberry: " + rasploc);
+
+                LayoutInflater inflater =  LayoutInflater.from(getApplicationContext());
+                View layout = inflater.inflate(R.layout.appwidget_provider,null);
+
+                //layout.setMinimumWidth(1000);
+                //layout.setMinimumHeight(300);
+                //转换为Bitmap对象
+                BitmapDescriptor bttmap = BitmapDescriptorFactory.fromView(layout);
+
+
+
+
+                //将marker所在的经纬度的信息转化成屏幕上的坐标
+                final LatLng ll = marker.getPosition();
+
+                LatLng llInfo = baiduMap.getProjection().fromScreenLocation(baiduMap.getProjection().toScreenLocation(ll));
+                //为弹出的InfoWindow添加点击事件
+
+
+                InfoWindow.OnInfoWindowClickListener infoWindowClicklistener = new InfoWindow.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick() {
+                        //隐藏InfoWindow
+                        baiduMap.hideInfoWindow();
+
+                        Intent intent = new Intent();
+                        intent.setClass(MainActivity.this,SecondActivity.class);
+                        startActivity(intent);
+                    }
+                };
+
+                mInfoWindow = new InfoWindow(bttmap, llInfo, -47,infoWindowClicklistener);
+                //显示InfoWindow
+                baiduMap.showInfoWindow(mInfoWindow);
+
+                return true;
+            }
+        });
     }
+
 
     private void navigateTo(BDLocation location) {
         if (isFirstLocate) {
@@ -115,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
             baiduMap.animateMapStatus(update);
             isFirstLocate = false;
         }
-        setMarker(30.6373,104.0917);
+        setMarker(30.6373,104.0917,location.getAddrStr());
         MyLocationData.Builder locationBuilder = new MyLocationData.Builder();
         locationBuilder.latitude(location.getLatitude());
         locationBuilder.longitude(location.getLongitude());
@@ -172,11 +263,11 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceiveLocation(BDLocation location) {
 
-
-
             Log.i(TAG, " latitude: " + latitude);
 
-            Log.i(TAG," longitude: " + longitude);
+            Log.i(TAG," longitude: " + longitude + location.getAddrStr());
+
+            String rasploc = location.getAddrStr();
 
             latitude = location.getLatitude();    //获取纬度信息
             longitude = location.getLongitude();    //获取经度信息
