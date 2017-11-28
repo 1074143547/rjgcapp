@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 
 public class SecondActivity extends Activity {
 
@@ -13,9 +13,9 @@ public class SecondActivity extends Activity {
     {
         super.onCreate(savedInstanceState);
 
-        RelativeLayout relativeLayout = (RelativeLayout)findViewById(R.id.re) ;
+        LinearLayout linearLayout= (LinearLayout)findViewById(R.id.re) ;
         LayoutInflater inflater =  LayoutInflater.from(getApplicationContext());
-        View layout = inflater.inflate(R.layout.appwidget_provider,relativeLayout,true);
+        View layout = inflater.inflate(R.layout.appwidget_provider,linearLayout,true);
        // setContentView(R.layout.activity_second);
         setContentView(R.layout.appwidget_provider);
 

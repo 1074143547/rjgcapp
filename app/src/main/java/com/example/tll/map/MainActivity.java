@@ -3,6 +3,9 @@ package com.example.tll.map;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -13,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -128,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setMarker(double lat,double lon,final String rasploc) {
+    private void setMarker(double lat,double lon) {
         //定义Maker坐标点
         LatLng point = new LatLng(lat, lon);
 
@@ -160,6 +164,8 @@ public class MainActivity extends AppCompatActivity {
 
                 LayoutInflater inflater =  LayoutInflater.from(getApplicationContext());
                 View layout = inflater.inflate(R.layout.appwidget_provider,null);
+
+                showgetdata( 17, 87, 0,"time","loc","",layout);
 
                 //layout.setMinimumWidth(1000);
                 //layout.setMinimumHeight(300);
@@ -197,6 +203,32 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void showgetdata( int temperature, int humidity, int pm_value,String date_time ,String rasploct ,String weather_type, final View layout)
+    {
+        TextView temp = (TextView)layout.findViewById(R.id.textView_widget_temp);
+        temp.setText(temperature + "℃");
+
+        TextView humi = (TextView)layout.findViewById(R.id.textView_widget_humi);
+        humi.setText(humidity + "%");
+
+        TextView pm = (TextView)layout.findViewById(R.id.textView_widget_pm);
+        pm.setText(pm_value + "");
+
+        TextView loc = (TextView)layout.findViewById(R.id.textView_widget_location);
+        loc.setText(rasploct);
+
+        TextView time = (TextView)layout.findViewById(R.id.textView_widget_time);
+        time.setText(date_time);
+
+        ImageView weather = (ImageView)layout.findViewById(R.id.imageView_widget_weather_ic1);
+
+        Resources res=getResources();
+
+        Bitmap bmp= BitmapFactory.decodeResource(res, R.drawable.icon_duoyun);
+
+        weather.setImageBitmap(bmp);
+
+    }
 
     private void navigateTo(BDLocation location) {
         if (isFirstLocate) {
@@ -206,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
             baiduMap.animateMapStatus(update);
             isFirstLocate = false;
         }
-        setMarker(30.6373,104.0917,location.getAddrStr());
+        setMarker(30.6373,104.0917);
         MyLocationData.Builder locationBuilder = new MyLocationData.Builder();
         locationBuilder.latitude(location.getLatitude());
         locationBuilder.longitude(location.getLongitude());
