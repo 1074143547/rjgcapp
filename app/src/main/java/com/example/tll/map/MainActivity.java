@@ -286,7 +286,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     public class MyLocationListener implements BDLocationListener {
         double latitude;
         double longitude;
@@ -334,3 +333,5 @@ public class MainActivity extends AppCompatActivity {
 
 
 }
+
+
