@@ -11,7 +11,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -103,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.more:
                 Toast.makeText(this, "......", Toast.LENGTH_LONG).show();
+                Intent intent2 = new Intent(MainActivity.this,Linkconfig.class);
+                startActivity(intent2);
                 break;
             default:
         }
@@ -294,9 +295,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceiveLocation(BDLocation location) {
 
-            Log.i(TAG, " latitude: " + latitude);
+           // Log.i(TAG, " latitude: " + latitude);
 
-            Log.i(TAG," longitude: " + longitude + location.getAddrStr());
+            //Log.i(TAG," longitude: " + longitude + location.getAddrStr());
 
             String rasploc = location.getAddrStr();
 
